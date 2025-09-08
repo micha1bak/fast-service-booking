@@ -26,14 +26,23 @@ export default function AdminLogin() {
     }
   };
 
-  const deleteBooking = async (id) => {
-    try {
-      await fetch(`${BACKEND_URL}/bookings/${id}`, { method: "DELETE" });
-      setBookings(bookings.filter((b) => b.id !== id));
-    } catch (error) {
-      console.error(error);
+const deleteBooking = async (id) => {
+  try {
+    const res = await fetch(`${BACKEND_URL}/bookings/${id}`, { method: "DELETE" });
+    
+    if (!res.ok) {
+      const data = await res.json();
+      alert(data.error || "Nie udało się usunąć rezerwacji");
+      return;
     }
-  };
+
+    // Aktualizacja stanu po usunięciu
+    setBookings((prev) => prev.filter((b) => b.id !== id));
+  } catch (error) {
+    console.error(error);
+    alert("Wystąpił błąd podczas usuwania rezerwacji!!!");
+  }
+};
 
   if (adminMode) {
     return (

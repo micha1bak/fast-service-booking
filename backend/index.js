@@ -53,6 +53,24 @@ app.post("/bookings", (req, res) => {
   });
 });
 
+// Endpoint: DELETE /bookings/:id (usuń rezerwację)
+app.delete("/bookings/:id", (req, res) => {
+  const { id } = req.params;
+
+  const stmt = `DELETE FROM bookings WHERE id = ?`;
+  db.run(stmt, [id], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    
+    if (this.changes === 0) {
+      // Nie znaleziono rezerwacji o podanym ID
+      return res.status(404).json({ error: "Nie znaleziono rezerwacji" });
+    }
+
+    res.json({ message: "Rezerwacja usunięta", id });
+  });
+});
+
+
 // Start serwera
 app.listen(port, () => {
   console.log(`Backend działa na http://localhost:${port}`);
