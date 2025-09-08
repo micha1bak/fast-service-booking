@@ -5,7 +5,8 @@ export default function AdminLogin() {
   const [adminMode, setAdminMode] = useState(false);
   const [bookings, setBookings] = useState([]);
 
-  const BACKEND_URL = "http://localhost:5000"; // Twój backend
+  const BACKEND_URL = import.meta.env.VITE_API_URL;
+
 
   const loginAdmin = () => {
     if (adminPassword === "admin123") {
