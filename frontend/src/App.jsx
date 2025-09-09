@@ -1,13 +1,15 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
+import ServicesPage from "./pages/ServicesPage";
 import AdminLogin from "./pages/AdminLogin";
+import BookingPage from "./pages/BookingPage"
 
 export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<ServicesPage />} />
         <Route path="/admin" element={<AdminLogin />} />
+        <Route path="/rezerwacja" element={<BookingPage />} />
       </Routes>
     </Router>
   );

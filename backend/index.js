@@ -54,7 +54,6 @@ CREATE TABLE IF NOT EXISTS services (
 
 // Endpoint: GET /services – pobranie wszystkich usług
 app.get("/services", (req, res) => {
-  console.log("get");
   db.all("SELECT * FROM services", [], (err, rows) => {
     if (err) {
       console.error(err.message);
