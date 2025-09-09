@@ -63,6 +63,26 @@ app.get("/services", (req, res) => {
   });
 });
 
+app.get("/available-times", (req, res) => {
+  const { serviceId, date } = req.query;
+
+  // Tutaj logika sprawdzająca, które godziny są już zajęte w danym dniu
+  const allTimes = [
+    "10:00", "11:00", "12:00", "13:00", "11:00", "12:00", "13:00", "14:00","15:00", "16:00", "17:00", "18:00"
+  ];
+
+  db.all(
+    "SELECT time FROM bookings WHERE service_id = ? AND date = ?",
+    [serviceId, date],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+      const booked = rows.map(r => r.time);
+      const available = allTimes.filter(t => !booked.includes(t));
+      res.json(available);
+    }
+  );
+});
+
 // Endpoint: GET /bookings (lista wszystkich rezerwacji)
 app.get("/bookings", (req, res) => {
   db.all("SELECT * FROM bookings", [], (err, rows) => {

@@ -1,28 +1,48 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export default function BookingPage() {
   const { serviceId } = useParams();
-  const [selectedDate, setSelectedDate] = useState("");
+  const BACKEND_URL = import.meta.env.VITE_API_URL;
+
+  const [selectedDate, setSelectedDate] = useState(null);
   const [availableTimes, setAvailableTimes] = useState([]);
   const [selectedTime, setSelectedTime] = useState("");
   const [clientName, setClientName] = useState("");
   const [clientEmail, setClientEmail] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [status, setStatus] = useState("");
-  const BACKEND_URL = import.meta.env.VITE_API_URL;
 
-  // --- Funkcja do wyboru daty i ustawienia dostępnych godzin (przykład) ---
-  const handleDateChange = (e) => {
-    setSelectedDate(e.target.value);
-    // Tutaj możesz fetchować dostępne godziny z backendu
-    setAvailableTimes(["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"]); // przykładowe godziny
-    setSelectedTime(""); // reset wybranej godziny po zmianie dnia
-  };
+  // --- Fetch dostępnych godzin z backendu po zmianie daty ---
+  useEffect(() => {
+    if (!selectedDate) return;
 
-  // --- Funkcja wysyłania rezerwacji ---
+    const fetchTimes = async () => {
+      try {
+        const dateStr = selectedDate.toISOString().split("T")[0]; // format YYYY-MM-DD
+        const res = await fetch(`${BACKEND_URL}/available-times?serviceId=${serviceId}&date=${dateStr}`);
+        if (!res.ok) throw new Error("Nie udało się pobrać godzin");
+        const data = await res.json();
+        setAvailableTimes(data);
+        setSelectedTime(""); // reset wybranej godziny
+      } catch (err) {
+        console.error(err);
+        setAvailableTimes([]);
+      }
+    };
+
+    fetchTimes();
+  }, [selectedDate, serviceId]);
+
+  // --- Wysyłanie rezerwacji ---
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!selectedDate || !selectedTime) {
+      alert("Wybierz dzień i godzinę!");
+      return;
+    }
     setStatus("loading");
 
     try {
@@ -31,7 +51,7 @@ export default function BookingPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           service_id: serviceId,
-          date: selectedDate,
+          date: selectedDate.toISOString().split("T")[0],
           time: selectedTime,
           client_name: clientName,
           client_email: clientEmail,
@@ -44,8 +64,9 @@ export default function BookingPage() {
         setClientName("");
         setClientEmail("");
         setClientPhone("");
-        setSelectedDate("");
+        setSelectedDate(null);
         setSelectedTime("");
+        setAvailableTimes([]);
       } else {
         setStatus("error");
       }
@@ -63,19 +84,19 @@ export default function BookingPage() {
       </header>
 
       <main className="flex flex-col items-center mt-10 w-full max-w-md space-y-6">
-        {/* 1️⃣ Kalendarz */}
+        {/* 1️⃣ Inline kalendarz */}
         <div className="w-full bg-white shadow-md rounded-xl p-4">
-          <label className="block text-gray-700 mb-2">Wybierz dzień</label>
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={handleDateChange}
-            className="w-full border rounded-lg p-2"
+          <h3 className="mb-2 font-semibold text-gray-700">Wybierz dzień</h3>
+          <DatePicker
+            selected={selectedDate}
+            onChange={setSelectedDate}
+            inline
+            minDate={new Date()}
           />
         </div>
 
         {/* 2️⃣ Dostępne godziny */}
-        {selectedDate && (
+        {selectedDate && availableTimes.length > 0 && (
           <div className="w-full grid grid-cols-3 gap-4">
             {availableTimes.map((time) => (
               <button
