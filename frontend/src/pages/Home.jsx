@@ -11,7 +11,7 @@ export default function Home() {
   });
 
   const [status, setStatus] = useState("");
-  const BACKEND_URL = "http://localhost:5000"; // zmień po deployu
+  const BACKEND_URL = import.meta.env.VITE_API_URL;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
