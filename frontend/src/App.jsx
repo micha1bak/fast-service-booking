@@ -9,7 +9,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<ServicesPage />} />
         <Route path="/admin" element={<AdminLogin />} />
-        <Route path="/rezerwacja" element={<BookingPage />} />
+        <Route path="/rezerwacja/:serviceId" element={<BookingPage />} />
       </Routes>
     </Router>
   );
