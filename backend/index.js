@@ -29,6 +29,29 @@ CREATE TABLE IF NOT EXISTS bookings (
 )
 `);
 
+// Tworzenie tabeli usług (jeśli nie istnieje)
+db.run(`
+CREATE TABLE IF NOT EXISTS services (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  price REAL NOT NULL
+)
+`, (err) => {
+  if (err) return console.error(err.message);
+
+  // Dodanie przykładowych usług tylko jeśli tabela jest pusta
+  db.get("SELECT COUNT(*) AS count FROM services", (err, row) => {
+    if (err) return console.error(err.message);
+    if (row.count === 0) {
+      const insert = "INSERT INTO services (name, price) VALUES (?, ?)";
+      db.run(insert, ["Strzyżenie klasyczne", 50]);
+      db.run(insert, ["Farbowanie włosów", 120]);
+      db.run(insert, ["Manicure", 80]);
+      console.log("Dodano przykładowe usługi do tabeli services");
+    }
+  });
+});
+
 // Endpoint: GET /bookings (lista wszystkich rezerwacji)
 app.get("/bookings", (req, res) => {
   db.all("SELECT * FROM bookings", [], (err, rows) => {
