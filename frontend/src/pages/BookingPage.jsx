@@ -95,21 +95,20 @@ export default function BookingPage() {
           />
         </div>
 
-        {/* 2️⃣ Dostępne godziny */}
         {selectedDate && availableTimes.length > 0 && (
           <div className="w-full grid grid-cols-3 gap-4">
-            {availableTimes.map((time) => (
-              <button
-                key={time}
-                onClick={() => setSelectedTime(time)}
-                className={`py-2 rounded-xl border ${
-                  selectedTime === time
-                    ? "bg-indigo-600 text-white"
-                    : "bg-white text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                {time}
-              </button>
+            {[...new Set(availableTimes)].map((time) => (
+                <button
+                    key={time}
+                    onClick={() => setSelectedTime(time)}
+                    className={`py-2 rounded-xl border ${
+                    selectedTime === time
+                        ? "bg-indigo-600 text-white"
+                        : "bg-white text-gray-700 hover:bg-gray-100"
+                    }`}
+                >
+                    {time}
+                </button>
             ))}
           </div>
         )}
