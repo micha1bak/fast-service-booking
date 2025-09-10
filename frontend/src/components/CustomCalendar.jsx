@@ -9,13 +9,15 @@ import {
   subMonths,
   isSameMonth,
   isSameDay,
-  format
+  format,
+  isToday,
+  startOfDay
 } from "date-fns";
 import { pl } from "date-fns/locale";
 
-export default function CustomCalendar() {
+// Dodaj propsy selectedDate i setSelectedDate
+export default function CustomCalendar({ selectedDate, setSelectedDate }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(null);
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
@@ -34,7 +36,7 @@ export default function CustomCalendar() {
         ‹
       </button>
       <h2 className="text-lg font-semibold">
-        {format(currentMonth, "MMMM yyyy", { locale: pl })}
+        {format(currentMonth, "LLLL yyyy", { locale: pl })}
       </h2>
       <button
         onClick={nextMonth}
@@ -62,18 +64,39 @@ export default function CustomCalendar() {
     const rows = [];
     let days = [];
     let day = startDate;
+    const today = new Date();
 
     while (day <= endDate) {
       for (let i = 0; i < 7; i++) {
         const cloneDay = day;
+        const isCurrentMonth = isSameMonth(day, monthStart);
+        const isPast = day < startOfDay(today);
+        const isCurrentDay = isToday(day);
+
+        let cellClass = `
+            p-2 text-center rounded cursor-pointer transition
+            ${!isCurrentMonth ? "text-gray-400" : "text-gray-800"}
+            ${isPast ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""}
+            ${isSameDay(day, selectedDate) ? "bg-indigo-600 text-white" : ""}
+            ${isCurrentDay ? "border-2 border-blue-400" : ""}
+            ${!isPast && !isSameDay(day, selectedDate) ? "hover:bg-indigo-100" : ""}
+        `;
+
+
         days.push(
           <div
             key={day}
-            onClick={() => setSelectedDate(cloneDay)}
-            className={`p-2 text-center rounded cursor-pointer transition 
-              ${!isSameMonth(day, monthStart) ? "text-gray-300" : "text-gray-800"}
-              ${isSameDay(day, selectedDate) ? "bg-indigo-600 text-white" : "hover:bg-indigo-100"}
-            `}
+            onClick={() => {
+              if (isPast) return;
+              if (!isCurrentMonth) {
+                setCurrentMonth(startOfMonth(cloneDay));
+                setSelectedDate(cloneDay);
+              } else {
+                setSelectedDate(cloneDay);
+              }
+            }}
+            className={cellClass}
+            style={isPast ? { pointerEvents: "none" } : {}}
           >
             {format(day, "d")}
           </div>
