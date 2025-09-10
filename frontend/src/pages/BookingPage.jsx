@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import DatePicker from "react-datepicker";
+import CustomCalendar from "../components/CustomCalendar";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function BookingPage() {
@@ -84,17 +85,14 @@ export default function BookingPage() {
       </header>
 
       <main className="flex flex-col items-center mt-10 w-full max-w-md space-y-6">
-        {/* 1️⃣ Inline kalendarz */}
-        <div className="w-full bg-white shadow-md rounded-xl p-4">
-          <h3 className="mb-2 font-semibold text-gray-700">Wybierz dzień</h3>
-          <DatePicker
-            selected={selectedDate}
-            onChange={setSelectedDate}
-            inline
-            minDate={new Date()}
-          />
-        </div>
 
+        {/* 1️⃣ Inline kalendarz */}
+        <CustomCalendar
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+        />
+
+        {/*Kafelki godzin */}
         {selectedDate && availableTimes.length > 0 && (
           <div className="w-full grid grid-cols-3 gap-4">
             {[...new Set(availableTimes)].map((time) => (
