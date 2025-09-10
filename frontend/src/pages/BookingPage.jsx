@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import CustomCalendar from "../components/CustomCalendar";
 import "react-datepicker/dist/react-datepicker.css";
+import { format } from "date-fns";
 
 export default function BookingPage() {
   const { serviceId } = useParams();
@@ -44,7 +45,6 @@ export default function BookingPage() {
       alert("Wybierz dzień i godzinę!");
       return;
     }
-    // Sprawdzenie formatu numeru telefonu (9 cyfr)
     if (!/^\d{9}$/.test(clientPhone)) {
       alert("Numer telefonu powinien składać się z 9 cyfr.");
       return;
@@ -57,7 +57,7 @@ export default function BookingPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           service_id: serviceId,
-          date: selectedDate.toISOString().split("T")[0],
+          date: format(selectedDate, "yyyy-MM-dd"),
           time: selectedTime,
           client_name: clientName,
           client_email: clientEmail,
@@ -74,7 +74,7 @@ export default function BookingPage() {
         setSelectedTime("");
         setAvailableTimes([]);
         setTimeout(() => {
-          navigate("/thank-you"); // ← przekierowanie po 1 sek
+          navigate("/thank-you");
         }, 1000);
       } else {
         setStatus("error");
