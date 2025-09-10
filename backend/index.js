@@ -29,6 +29,60 @@ CREATE TABLE IF NOT EXISTS bookings (
 )
 `);
 
+// Tworzenie tabeli usług (jeśli nie istnieje)
+db.run(`
+CREATE TABLE IF NOT EXISTS services (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  price REAL NOT NULL
+)
+`, (err) => {
+  if (err) return console.error(err.message);
+
+  // Dodanie przykładowych usług tylko jeśli tabela jest pusta
+  db.get("SELECT COUNT(*) AS count FROM services", (err, row) => {
+    if (err) return console.error(err.message);
+    if (row.count === 0) {
+      const insert = "INSERT INTO services (name, price) VALUES (?, ?)";
+      db.run(insert, ["Strzyżenie klasyczne", 50]);
+      db.run(insert, ["Farbowanie włosów", 120]);
+      db.run(insert, ["Manicure", 80]);
+      console.log("Dodano przykładowe usługi do tabeli services");
+    }
+  });
+});
+
+// Endpoint: GET /services – pobranie wszystkich usług
+app.get("/services", (req, res) => {
+  db.all("SELECT * FROM services", [], (err, rows) => {
+    if (err) {
+      console.error(err.message);
+      return res.status(500).json({ error: "Błąd serwera" });
+    }
+    res.json(rows);
+  });
+});
+
+app.get("/available-times", (req, res) => {
+  const { serviceId, date } = req.query;
+
+  // Tutaj logika sprawdzająca, które godziny są już zajęte w danym dniu
+  const allTimes = [
+    "10:00", "11:00", "12:00", "13:00", "11:00", "12:00", "13:00", "14:00","15:00", "16:00", "17:00", "18:00"
+  ];
+
+  db.all(
+    "SELECT time FROM bookings WHERE service_id = ? AND date = ?",
+    [serviceId, date],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+      const booked = rows.map(r => r.time);
+      const available = allTimes.filter(t => !booked.includes(t));
+      res.json(available);
+    }
+  );
+});
+
 // Endpoint: GET /bookings (lista wszystkich rezerwacji)
 app.get("/bookings", (req, res) => {
   db.all("SELECT * FROM bookings", [], (err, rows) => {
