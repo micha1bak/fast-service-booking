@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import DatePicker from "react-datepicker";
 import CustomCalendar from "../components/CustomCalendar";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function BookingPage() {
   const { serviceId } = useParams();
-  const navigate = useNavigate(); // ← inicjalizuj hook
+  const navigate = useNavigate();
   const BACKEND_URL = import.meta.env.VITE_API_URL;
 
   const [selectedDate, setSelectedDate] = useState(null);
@@ -43,6 +42,11 @@ export default function BookingPage() {
     e.preventDefault();
     if (!selectedDate || !selectedTime) {
       alert("Wybierz dzień i godzinę!");
+      return;
+    }
+    // Sprawdzenie formatu numeru telefonu (9 cyfr)
+    if (!/^\d{9}$/.test(clientPhone)) {
+      alert("Numer telefonu powinien składać się z 9 cyfr.");
       return;
     }
     setStatus("loading");
