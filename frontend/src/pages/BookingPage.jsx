@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import CustomCalendar from "../components/CustomCalendar";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function BookingPage() {
   const { serviceId } = useParams();
+  const navigate = useNavigate(); // ← inicjalizuj hook
   const BACKEND_URL = import.meta.env.VITE_API_URL;
 
   const [selectedDate, setSelectedDate] = useState(null);
@@ -68,6 +69,9 @@ export default function BookingPage() {
         setSelectedDate(null);
         setSelectedTime("");
         setAvailableTimes([]);
+        setTimeout(() => {
+          navigate("/thank-you"); // ← przekierowanie po 1 sek
+        }, 1000);
       } else {
         setStatus("error");
       }
